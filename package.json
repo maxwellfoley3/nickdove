@@ -1,0 +1,31 @@
+{
+  "name": "mcrumps",
+  "version": "1.0.0",
+  "description": "Mike Crumplar's author website built with Eleventy and Tailwind CSS",
+  "main": "index.js",
+  "scripts": {
+    "build": "eleventy",
+    "start": "eleventy --serve",
+    "dev": "eleventy --serve --watch",
+    "css": "npx tailwindcss -i src/css/style.css -o _site/css/style.css",
+    "rebuild": "npm run css && npm run build"
+  },
+  "keywords": [
+    "eleventy",
+    "tailwind",
+    "author",
+    "website"
+  ],
+  "author": "Mike Crumplar",
+  "license": "ISC",
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.1",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "postcss-cli": "^11.0.1"
+  },
+  "dependencies": {
+    "tailwindcss": "^3.4.17"
+  }
+}
