@@ -1,4 +1,4 @@
-# Mike Crumplar - Author Website
+# Nick Dove - Photographer Website
 
 A modern, responsive author website built with [Eleventy](https://www.11ty.dev/) and [Tailwind CSS](https://tailwindcss.com/).
 
