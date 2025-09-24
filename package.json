@@ -4,10 +4,11 @@
   "description": "Mike Crumplar's author website built with Eleventy and Tailwind CSS",
   "main": "index.js",
   "scripts": {
-    "build": "eleventy",
-    "start": "eleventy --serve",
-    "dev": "eleventy --serve --watch",
+    "build": "npm run css && eleventy",
+    "start": "npm run css && eleventy --serve",
+    "dev": "npm run css && eleventy --serve --watch",
     "css": "npx tailwindcss -i src/css/style.css -o _site/css/style.css",
+    "css:watch": "npx tailwindcss -i src/css/style.css -o _site/css/style.css --watch",
     "rebuild": "npm run css && npm run build"
   },
   "keywords": [
