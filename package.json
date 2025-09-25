@@ -1,7 +1,7 @@
 {
   "name": "mcrumps",
   "version": "1.0.0",
-  "description": "Mike Crumplar's author website built with Eleventy and Tailwind CSS",
+  "description": "Nick Dove's author website built with Eleventy and Tailwind CSS",
   "main": "index.js",
   "scripts": {
     "build": "npm run css && eleventy",
@@ -17,7 +17,7 @@
     "author",
     "website"
   ],
-  "author": "Mike Crumplar",
+  "author": "Nick Dove",
   "license": "ISC",
   "devDependencies": {
     "@11ty/eleventy": "^3.1.1",
