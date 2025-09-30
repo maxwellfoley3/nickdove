@@ -1,0 +1,29 @@
+---
+layout: base.njk
+---
+
+<div class="prose prose-lg max-w-none">
+    <!-- Collection Header -->
+    <div class="mb-8">
+        <nav class="text-sm text-gray-500 mb-4">
+            <a href="/" class="hover:text-gray-700">← Back to Photography</a>
+        </nav>
+        
+        <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ title }}</h1>
+        <p class="text-xl text-gray-600">{{ description }}</p>
+    </div>
+
+    <!-- Photo Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        {% for i in range(1, imageCount + 1) %}
+        <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden group cursor-pointer">
+            <img 
+                src="/images/{{ folder }}/{{ i }}.jpg" 
+                alt="{{ title }} - Image {{ i }}"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                loading="lazy"
+            />
+        </div>
+        {% endfor %}
+    </div>
+</div>

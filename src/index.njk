@@ -4,174 +4,31 @@ title: Photo
 ---
 
 <div class="prose prose-lg max-w-none">
-    <h1 class="text-xl font-bold text-gray-900 mb-8">Photography</h1>
+    <h1 class="text-3xl font-bold text-gray-900 mb-8">Nick Dove</h1>
     
     <p class="text-xl text-gray-600 mb-8">
-        A visual journey through moments captured in time, exploring the intersection of light, shadow, and human experience.
+        Writer, photographer, and creative explorer. Welcome to my digital space where words and images converge.
     </p>
 
     <div class="space-y-8">
-        <!-- Featured Gallery -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Featured Gallery</h2>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 1</span>
-                </div>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 2</span>
-                </div>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 3</span>
-                </div>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 4</span>
-                </div>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 5</span>
-                </div>
-                <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center">
-                    <span class="text-gray-400 text-sm">Photo 6</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Photography Philosophy -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Photography Philosophy</h2>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Capturing Authenticity</h3>
-                    <p class="text-gray-600 mb-4">
-                        My approach to photography centers on capturing genuine moments and emotions. 
-                        I believe the most powerful images emerge when subjects are comfortable and 
-                        authentic, revealing their true selves.
-                    </p>
-                    <p class="text-gray-600">
-                        Whether photographing people, landscapes, or urban scenes, I strive to find 
-                        the intersection between technical excellence and emotional resonance.
-                    </p>
-                </div>
-                
-                <div>
-                    <h3 class="text-xl font-semibold text-gray-900 mb-4">Light & Composition</h3>
-                    <p class="text-gray-600 mb-4">
-                        Light is the foundation of photography, and I'm constantly exploring how 
-                        different lighting conditions can transform a scene. From the golden hour 
-                        to dramatic shadows, each moment offers unique possibilities.
-                    </p>
-                    <p class="text-gray-600">
-                        Composition serves as the framework that guides the viewer's eye and 
-                        creates visual harmony within the frame.
-                    </p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Portfolio Categories -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Portfolio Categories</h2>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Portrait Photography</h3>
-                    <p class="text-gray-600 mb-4">
-                        Intimate portraits that reveal character and emotion. From environmental 
-                        portraits to studio work, each session is tailored to capture the unique 
-                        essence of the subject.
-                    </p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Personal & Professional</span>
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Available</span>
+        <!-- Photo Collections Grid -->
+        <div class="bg-white rounded-lg shadow-sm p-8">            
+            <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
+                {% for collection in photoCollections %}
+                <a href="/photo/{{ collection.id }}/" class="group">
+                    <h2 class="text-lg font-semibold text-gray-900  transition-colors">
+                        {{ collection.title }}
+                    </h2>
+                    <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden mb-4">
+                        <img 
+                            src="/images/{{ collection.folder }}/1.jpg" 
+                            alt="{{ collection.title }}"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
                     </div>
-                </div>
-                
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Street Photography</h3>
-                    <p class="text-gray-600 mb-4">
-                        Candid moments from urban life, capturing the rhythm and energy of city 
-                        streets. These images tell stories of everyday life and human connection.
-                    </p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Documentary Style</span>
-                        <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Featured</span>
-                    </div>
-                </div>
-                
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Landscape Photography</h3>
-                    <p class="text-gray-600 mb-4">
-                        Natural landscapes that showcase the beauty of the world around us. 
-                        From mountain vistas to coastal scenes, each image celebrates the 
-                        grandeur of nature.
-                    </p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Nature & Travel</span>
-                        <span class="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">Ongoing</span>
-                    </div>
-                </div>
-                
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-xl font-semibold text-gray-900 mb-3">Event Photography</h3>
-                    <p class="text-gray-600 mb-4">
-                        Capturing special moments and celebrations. From intimate gatherings 
-                        to larger events, I focus on documenting the joy and connection that 
-                        brings people together.
-                    </p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">Weddings & Events</span>
-                        <span class="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">Available</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Equipment & Process -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Equipment & Process</h2>
-            
-            <div class="grid md:grid-cols-2 gap-8">
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Gear</h3>
-                    <ul class="text-gray-600 space-y-2">
-                        <li>• Canon EOS R5 - Primary camera body</li>
-                        <li>• Canon RF 24-70mm f/2.8L - Versatile zoom lens</li>
-                        <li>• Canon RF 85mm f/1.2L - Portrait lens</li>
-                        <li>• Canon RF 16-35mm f/2.8L - Wide angle lens</li>
-                        <li>• Professional lighting equipment for studio work</li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Post-Processing</h3>
-                    <ul class="text-gray-600 space-y-2">
-                        <li>• Adobe Lightroom - Raw processing and organization</li>
-                        <li>• Adobe Photoshop - Advanced editing and retouching</li>
-                        <li>• Capture One - Professional color grading</li>
-                        <li>• Focus on natural, authentic color correction</li>
-                        <li>• Minimal retouching to preserve authenticity</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-        <!-- Contact for Photography -->
-        <div class="bg-blue-50 rounded-lg p-8">
-            <h2 class="text-2xl font-semibold text-blue-900 mb-4">Photography Services</h2>
-            <p class="text-blue-800 mb-4">
-                Interested in commissioning photography work or collaborating on a project? 
-                I'm available for portrait sessions, event photography, and creative collaborations.
-            </p>
-            <div class="flex space-x-4">
-                <a href="/about/" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                    Learn More About Me
                 </a>
-                <a href="mailto:photo@nickdove.com" class="bg-white text-blue-600 border border-blue-600 px-4 py-2 rounded-md hover:bg-blue-50 transition-colors duration-200">
-                    Contact for Photography
-                </a>
+                {% endfor %}
             </div>
         </div>
     </div>
-</div> 
+</div>
