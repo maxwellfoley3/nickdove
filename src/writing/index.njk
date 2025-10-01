@@ -6,39 +6,25 @@ title: Writing
 <div class="prose prose-lg max-w-none">
     <h1 class="text-xl font-bold text-gray-900 mb-8">Writing</h1>
     
-    <p class="text-xl text-gray-600 mb-8">
-        Explore Nick Dove's body of work, from published novels to short stories and essays.
-    </p>
 
     <div class="space-y-8">
         <!-- Featured Work -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Featured Work</h2>
-            
+        <div class="bg-white rounded-lg shadow-sm p-8">            
             <div class="space-y-6">
                 {% for work in writing %}
                 <div class="pl-6 py-4 hover:bg-gray-50 transition-colors duration-200">
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
                         <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4">
-                            <h3 class="text-lg font-semibold text-gray-900">
+                            <div class="text-lg font-semibold text-gray-900">
                                 <a href="{{ work.url }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">
                                     {{ work.title }}
                                 </a>
-                            </h3>
-                            <div class="flex items-center gap-2 text-sm text-gray-600">
-                                <span class="font-medium text-blue-600">{{ work.publishedBy }}</span>
-                                <span class="text-gray-400">•</span>
-                                <span class="text-gray-500">{{ work.date }}</span>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <a href="{{ work.url }}" target="_blank" rel="noopener noreferrer" 
-                               class="inline-flex items-center px-3 py-1.5 text-xs font-medium text-blue-600 bg-blue-50 rounded-full hover:bg-blue-100 transition-colors duration-200">
-                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
-                                </svg>
-                                Read
-                            </a>
+                            <div class="flex items-center gap-2 text-gray-600">
+                                <span class="font-medium text-gray-600">{{ work.publishedBy }}</span>
+                                <span class="text-gray-400">•</span>
+                                <span class="text-gray-500">{{ work.date | formatDate("LLLL d, yyyy") }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -46,79 +32,5 @@ title: Writing
             </div>
         </div>
 
-        <!-- Short Stories -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Short Stories</h2>
-            
-            <div class="space-y-6">
-                <div class="border-l-4 border-blue-500 pl-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">The Last Letter</h3>
-                    <p class="text-gray-600 mb-3">
-                        A poignant story about a woman who discovers a letter from her late husband, 
-                        leading her on a journey of self-discovery and healing.
-                    </p>
-                    <span class="text-sm text-gray-500">Published in Literary Review, 2023</span>
-                </div>
-                
-                <div class="border-l-4 border-blue-500 pl-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Coffee Shop Conversations</h3>
-                    <p class="text-gray-600 mb-3">
-                        A series of interconnected vignettes set in a local coffee shop, exploring 
-                        the lives of regular customers and the barista who serves them.
-                    </p>
-                    <span class="text-sm text-gray-500">Published in Urban Tales, 2022</span>
-                </div>
-                
-                <div class="border-l-4 border-blue-500 pl-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">The Garden at Midnight</h3>
-                    <p class="text-gray-600 mb-3">
-                        A magical realism story about a gardener who discovers that his plants 
-                        have the ability to reveal hidden truths about the people who tend them.
-                    </p>
-                    <span class="text-sm text-gray-500">Published in Fantasy Quarterly, 2021</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Essays -->
-        <div class="bg-white rounded-lg shadow-sm p-8">
-            <h2 class="text-2xl font-semibold text-gray-900 mb-6">Essays & Articles</h2>
-            
-            <div class="space-y-6">
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">The Art of Slow Reading</h3>
-                    <p class="text-gray-600 mb-3">
-                        An exploration of how taking time to savor literature can deepen our 
-                        understanding and appreciation of the written word.
-                    </p>
-                    <span class="text-sm text-gray-500">Published in The Reader's Journal, 2023</span>
-                </div>
-                
-                <div class="border border-gray-200 rounded-lg p-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Writing in the Digital Age</h3>
-                    <p class="text-gray-600 mb-3">
-                        Reflections on how technology has changed the way we write, read, and 
-                        engage with literature in the 21st century.
-                    </p>
-                    <span class="text-sm text-gray-500">Published in Modern Literature, 2022</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Coming Soon -->
-        <div class="bg-blue-50 rounded-lg p-8">
-            <h2 class="text-2xl font-semibold text-blue-900 mb-4">Coming Soon</h2>
-            <p class="text-blue-800 mb-4">
-                Mike is currently working on his next novel, a historical fiction piece set 
-                during the early 20th century. Stay tuned for updates and release information.
-            </p>
-            <div class="bg-white rounded-lg p-4">
-                <h3 class="text-lg font-semibold text-gray-900 mb-2">Work in Progress</h3>
-                <p class="text-gray-600">
-                    "The Clockmaker's Daughter" - A story of family secrets, mechanical wonders, 
-                    and the passage of time in a rapidly changing world.
-                </p>
-            </div>
-        </div>
     </div>
 </div> 
