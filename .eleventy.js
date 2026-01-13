@@ -2,8 +2,8 @@ const { DateTime } = require("luxon");
 
 module.exports = function(eleventyConfig) {
   // Set the layout directory
-  eleventyConfig.addLayoutAlias("base", "layouts/base.njk");
-  eleventyConfig.addLayoutAlias("collection", "layouts/collection.njk");
+  eleventyConfig.addLayoutAlias("base", "_layouts/base.njk");
+  eleventyConfig.addLayoutAlias("collection", "_layouts/collection.njk");
   
   // Filters
   eleventyConfig.addNunjucksFilter("formatDate", function(dateInput, format = "MMMM yyyy") {
