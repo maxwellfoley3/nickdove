@@ -4,7 +4,7 @@ title: Writing
 ---
 
 <div class="prose prose-lg max-w-none">
-    <h1 class="text-xl font-bold text-gray-900 mb-8">Writing</h1>
+    <h1 class="text-xl font-bold font-bodoni text-gray-900 mb-8">Writing</h1>
     
 
     <div class="space-y-8">
@@ -12,14 +12,14 @@ title: Writing
         <div class="bg-white rounded-lg shadow-sm p-8">            
             <div class="space-y-6">
                 {% for work in writing %}
-                <div class="pl-6 py-4 hover:bg-gray-50 transition-colors duration-200">
+                <div class="pl-6 py-4 hover:bg-gray-50 transition-colors duration-200 border-b">
+                    <div class="text-lg font-semibold text-gray-900">
+                        <a href="{{ work.url }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">
+                            {{ work.title }}
+                        </a>
+                    </div>
                     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2">
                         <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4">
-                            <div class="text-lg font-semibold text-gray-900">
-                                <a href="{{ work.url }}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-600">
-                                    {{ work.title }}
-                                </a>
-                            </div>
                             <div class="flex items-center gap-2 text-gray-600">
                                 <span class="font-medium text-gray-600">{{ work.publishedBy }}</span>
                                 <span class="text-gray-400">•</span>

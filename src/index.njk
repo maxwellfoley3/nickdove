@@ -7,14 +7,14 @@ title: Photo
     <p class="text-xl text-gray-600 mb-8">
         My name is Nick Dove, I'm a writer and a photographer living in New York City and traveling the world. I document all the wonderful and charming characters and spaces around me. Living the life of a flâneur, I'm here to take notes and observe. I'm available for hire to photograph your party or anything else you may desire. If you're interested in my services, <a href="/contact">feel free to reach out</a>. 
     </p>
-    <h1 class="text-xl font-bold text-gray-900 mb-8">Photography</h1>
+    <h1 class="text-xl font-bold font-bodoni text-gray-900 mb-8">Photography</h1>
     <div class="space-y-8">
         <!-- Photo Collections Grid -->
         <div class="bg-white rounded-lg shadow-sm p-8">            
             <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {% for collection in photoCollections %}
-                <a href="/photo/{{ collection.id }}/" class="group">
-                    <h2 class="text-lg font-semibold text-gray-900  transition-colors">
+                <a href="/photo/{{ collection.id }}/" class="group no-underline">
+                    <h2 class="text-xl font-bold text-gray-900 transition-colors font-sans uppercase border-b border-gray-500">
                         {{ collection.title }}
                     </h2>
                     <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden mb-4">

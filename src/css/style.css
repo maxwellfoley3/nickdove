@@ -16,7 +16,7 @@
 
 @layer components {
   .nav-link {
-    color: rgb(55 65 81);
+    color: rgb(67, 100, 72);
     padding: 0.5rem 0.75rem;
     border-radius: 0.375rem;
     font-size: 0.875rem;
@@ -31,7 +31,12 @@
   }
   
   .nav-link.active {
-    color: rgb(37 99 235);
-    background-color: rgb(239 246 255);
+    color: rgb(67, 100, 72);
+    background-color: rgb(243 244 241);
+  }
+
+  /* Custom Google Font Classes */
+  .font-bodoni {
+    font-family: 'Bodoni Moda', serif;
   }
 } 
