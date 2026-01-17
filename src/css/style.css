@@ -28,6 +28,7 @@
   
   .nav-link:hover {
     color: rgb(17 24 39);
+    background-color: rgb(243, 243, 242);
   }
   
   .nav-link.active {
@@ -38,6 +39,10 @@
   /* Custom Google Font Classes */
   .font-bodoni {
     font-family: 'Bodoni Moda', serif;
+  }
+
+  .fade-up {
+    @apply opacity-0 translate-y-4 delay-[300ms] duration-[600ms] taos:opacity-[100] taos:-translate-y-4;
   }
 } 
 
