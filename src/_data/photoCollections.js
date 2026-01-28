@@ -14,7 +14,7 @@ module.exports = [
         folder: 'new-ritual-press',
         imageCount: 6,
         featured: true
-    },
+    },/*
     {
         id: 'pleasure-seeking',
         title: 'Pleasure Seeking',
@@ -22,5 +22,5 @@ module.exports = [
         folder: 'pleasure-seeking',
         imageCount: 7,
         featured: false
-    }
+    }*/
 ];
