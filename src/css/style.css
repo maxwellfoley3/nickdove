@@ -2,6 +2,24 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Book.woff2') format('woff2'),
+       url('/fonts/Garet-Book.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Garet';
+  src: url('/fonts/Garet-Heavy.woff2') format('woff2'),
+       url('/fonts/Garet-Heavy.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 @layer base {
   html {
     font-family: 'EB Garamond', serif;
@@ -32,8 +50,9 @@
   }
   
   .nav-link.active {
-    color: rgb(79, 79, 79);;
+    color: #000;
     background-color: rgb(243, 243, 242);
+    text-decoration: underline;
   }
 
   /* Custom Google Font Classes */

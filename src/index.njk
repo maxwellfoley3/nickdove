@@ -4,14 +4,13 @@ title: Photo
 ---
 
 <div class="prose prose-lg max-w-none">    
-    <h1 class="text-xl font-bold font-bodoni text-gray-900 mb-8 underline">Photography</h1>
     <div class="space-y-8">
         <!-- Photo Collections Grid -->
-        <div class="bg-white rounded-lg shadow-sm p-8">            
+        <div class="rounded-lg shadow-sm p-8" style="background-color: rgb(254, 254, 254)">            
             <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {% for collection in photoCollections %}
                 <a href="/photo/{{ collection.id }}/" class="group no-underline">
-                    <h2 class="text-xl font-bold text-gray-900 transition-colors font-sans uppercase border-b border-gray-500 mt-2">
+                    <h2 class="!text-xs !font-normal font-bodoni transition-colors uppercase border-b border-gray-500 mt-2 tracking-[0.2rem]" style="color: #666; margin-bottom: 1.5rem; font-weight: 400 !important">
                         {{ collection.title }}
                     </h2>
                     <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden mb-4 relative opacity-0 translate-y-4 delay-[100ms] duration-[600ms] taos:opacity-[100] taos:-translate-y-4">

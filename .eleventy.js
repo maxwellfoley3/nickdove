@@ -27,8 +27,9 @@ module.exports = function(eleventyConfig) {
     return dt && dt.isValid ? dt.toFormat(format) : String(dateInput);
   });
 
-  // Copy images to output directory
+  // Copy images and fonts to output directory
   eleventyConfig.addPassthroughCopy("src/images");
+  eleventyConfig.addPassthroughCopy("src/fonts");
   
   // Don't copy CSS files - let Tailwind handle the compilation
   // eleventyConfig.addPassthroughCopy("src/css");
