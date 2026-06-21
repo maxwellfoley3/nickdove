@@ -1,0 +1,941 @@
+---
+layout: false
+permalink: /admin/
+---
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - NICK DOVE</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="icon" type="image/x-icon" href="/images/favicon-s.png">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400..900;1,6..96,400..900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+    <style>
+        .quill-wrapper { background: white; border-radius: 0.5rem; overflow: hidden; }
+        .quill-wrapper .ql-toolbar { border-top: none; border-left: none; border-right: none; }
+        .quill-wrapper .ql-container { border: none; min-height: 300px; font-family: 'EB Garamond', serif; font-size: 1rem; }
+        .admin-section { display: none; }
+        .admin-section.active { display: block; }
+
+        /* Writing table */
+        .writing-table { width: 100%; border-collapse: collapse; background: white; border-radius: 0.5rem; overflow: hidden; }
+        .writing-table th { text-align: left; padding: 0.75rem 1rem; font-family: 'Bodoni Moda', serif; font-weight: 600; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: #666; border-bottom: 2px solid #e5e7eb; }
+        .writing-table td { padding: 0.65rem 1rem; border-bottom: 1px solid #f3f4f6; font-size: 0.9rem; cursor: pointer; }
+        .writing-table tr:hover td { background: #f9fafb; }
+        .writing-table td a { color: #2563eb; text-decoration: underline; }
+        .writing-table .col-date { width: 130px; }
+        .writing-table .col-pub { width: 160px; }
+
+        /* Context menu */
+        .context-menu { position: fixed; z-index: 1000; background: white; border: 1px solid #e5e7eb; border-radius: 0.375rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 0.25rem 0; min-width: 140px; }
+        .context-menu button { display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; font-size: 0.875rem; color: #dc2626; background: none; border: none; cursor: pointer; }
+        .context-menu button:hover { background: #fef2f2; }
+
+        /* Modal */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 2000; display: flex; align-items: center; justify-content: center; }
+        .modal-box { background: white; border-radius: 0.5rem; padding: 1.5rem; max-width: 400px; width: 90%; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+        /* Inline edit form */
+        .edit-row td { background: #fffbeb !important; }
+        .edit-row input { width: 100%; padding: 0.35rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem; font-size: 0.85rem; font-family: 'EB Garamond', serif; }
+        .edit-row input:focus { outline: none; border-color: #111827; box-shadow: 0 0 0 1px #111827; }
+
+        /* Photo collections */
+        .collection-card { background: white; border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1rem; }
+        .collection-card h3 { font-family: 'Bodoni Moda', serif; font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; }
+        .photo-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 0.75rem; margin-top: 1rem; }
+        .photo-thumb { position: relative; aspect-ratio: 1; border-radius: 0.375rem; overflow: hidden; background: #f3f4f6; cursor: grab; user-select: none; transition: transform 0.15s, opacity 0.15s; }
+        .photo-thumb.dragging { opacity: 0.4; transform: scale(0.95); }
+        .photo-thumb.drag-over-left { box-shadow: -3px 0 0 0 #111827; }
+        .photo-thumb.drag-over-right { box-shadow: 3px 0 0 0 #111827; }
+        .photo-thumb img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .photo-thumb .remove-photo { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: rgba(0,0,0,0.6); color: white; border: none; border-radius: 50%; cursor: pointer; font-size: 14px; line-height: 24px; text-align: center; opacity: 0; transition: opacity 0.15s; }
+        .photo-thumb:hover .remove-photo { opacity: 1; }
+        .upload-zone { aspect-ratio: 1; border: 2px dashed #d1d5db; border-radius: 0.375rem; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: border-color 0.15s, background 0.15s; color: #9ca3af; font-size: 0.8rem; }
+        .upload-zone:hover { border-color: #111827; background: #f9fafb; }
+        .upload-zone.dragover { border-color: #111827; background: #f0f0f0; }
+        .upload-zone svg { width: 28px; height: 28px; margin-bottom: 4px; }
+        .collection-meta { display: flex; gap: 0.75rem; margin-bottom: 0.5rem; }
+        .collection-meta input { flex: 1; padding: 0.35rem 0.5rem; border: 1px solid #d1d5db; border-radius: 0.25rem; font-size: 0.85rem; font-family: 'EB Garamond', serif; }
+        .collection-meta input:focus { outline: none; border-color: #111827; box-shadow: 0 0 0 1px #111827; }
+        .upload-progress { position: absolute; bottom: 0; left: 0; right: 0; height: 3px; background: #e5e7eb; }
+        .upload-progress-bar { height: 100%; background: #111827; transition: width 0.3s; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex items-center justify-center min-h-screen">
+        <div class="w-full max-w-sm px-6">
+            <div class="text-center mb-8">
+                <h1 class="text-4xl font-bodoni font-bold text-gray-900">NICK DOVE</h1>
+                <p class="text-gray-500 mt-2 font-bodoni">Admin Console</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <input
+                        type="password"
+                        id="password-input"
+                        placeholder="Enter password"
+                        autocomplete="current-password"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent text-center"
+                    >
+                </div>
+                <div id="error-message" class="text-red-600 text-sm text-center hidden">
+                    Incorrect password.
+                </div>
+                <button
+                    type="submit"
+                    class="w-full py-3 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni"
+                >
+                    Enter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Console (hidden until authenticated) -->
+    <div id="admin-console" class="hidden">
+        <nav class="bg-gray-50">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 border-b border-gray-200">
+                <div class="flex flex-col py-4">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="flex items-center space-x-4">
+                            <img class="h-16 w-24 pr-4" src="/images/dove-s.gif">
+                            <a href="/admin/" class="text-6xl font-bodoni font-bold text-gray-900 hover:text-gray-700 transition-colors duration-200">
+                                NICK DOVE
+                            </a>
+                            <span class="text-xs font-mono bg-gray-200 text-gray-600 px-2 py-1 rounded">ADMIN</span>
+                        </div>
+                        <button id="logout-btn" class="text-sm text-gray-500 hover:text-gray-900 transition-colors duration-200 mt-2">
+                            Log out
+                        </button>
+                    </div>
+                    <div class="flex space-x-8">
+                        <a href="/admin/#photo" class="nav-link font-bodoni" data-section="photo">Photo</a>
+                        <a href="/admin/#writing" class="nav-link font-bodoni" data-section="writing">Writing</a>
+                        <a href="/admin/#about" class="nav-link font-bodoni" data-section="about">About</a>
+                        <a href="/admin/#contact" class="nav-link font-bodoni" data-section="contact">Contact</a>
+                        <a href="/admin/#settings" class="nav-link font-bodoni" data-section="settings">Settings</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <!-- Photo Section -->
+            <div id="section-photo" class="admin-section active">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bodoni font-bold text-gray-900">Photo Collections</h2>
+                    <button id="add-collection-btn" class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni text-sm">
+                        + New Collection
+                    </button>
+                </div>
+                <div id="collections-list"></div>
+            </div>
+
+            <!-- Writing Section -->
+            <div id="section-writing" class="admin-section">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bodoni font-bold text-gray-900">Writing</h2>
+                    <button id="add-writing-btn" class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni text-sm">
+                        + Add Entry
+                    </button>
+                </div>
+                <div class="border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                    <table class="writing-table">
+                        <thead>
+                            <tr>
+                                <th class="col-date">Date</th>
+                                <th>Title</th>
+                                <th class="col-pub">Publication</th>
+                                <th>Link</th>
+                            </tr>
+                        </thead>
+                        <tbody id="writing-tbody"></tbody>
+                    </table>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <button id="save-writing" class="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- Context menu (hidden) -->
+            <div id="context-menu" class="context-menu hidden">
+                <button id="ctx-delete">Delete</button>
+            </div>
+
+            <!-- About Section -->
+            <div id="section-about" class="admin-section">
+                <h2 class="text-2xl font-bodoni font-bold text-gray-900 mb-6">About Page</h2>
+                <div class="quill-wrapper border border-gray-200 shadow-sm mb-4">
+                    <div id="editor-about"></div>
+                </div>
+                <div class="flex justify-end">
+                    <button id="save-about" class="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
+            <div id="section-contact" class="admin-section">
+                <h2 class="text-2xl font-bodoni font-bold text-gray-900 mb-6">Contact Page</h2>
+                <div class="quill-wrapper border border-gray-200 shadow-sm mb-4">
+                    <div id="editor-contact"></div>
+                </div>
+                <div class="flex justify-end">
+                    <button id="save-contact" class="px-6 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni">
+                        Save
+                    </button>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="section-settings" class="admin-section">
+                <h2 class="text-2xl font-bodoni font-bold text-gray-900 mb-6">Settings</h2>
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm p-6 max-w-md">
+                    <h3 class="text-lg font-bodoni font-semibold text-gray-900 mb-4">Change Password</h3>
+                    <form id="change-password-form" class="space-y-4">
+                        <div>
+                            <label for="old-password" class="block text-sm text-gray-600 mb-1">Current Password</label>
+                            <input type="password" id="old-password" autocomplete="current-password"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="new-password" class="block text-sm text-gray-600 mb-1">New Password</label>
+                            <input type="password" id="new-password" autocomplete="new-password"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label for="confirm-password" class="block text-sm text-gray-600 mb-1">Confirm New Password</label>
+                            <input type="password" id="confirm-password" autocomplete="new-password"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent">
+                        </div>
+                        <div id="password-message" class="text-sm hidden"></div>
+                        <button type="submit"
+                            class="w-full py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700 transition-colors duration-200 font-bodoni">
+                            Update Password
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
+    <script>
+    (function() {
+        const TOKEN_KEY = 'nd_admin_token';
+        let quillAbout, quillContact;
+
+        // --- Writing data ---
+        let writingData = [];
+        let editingIndex = null;
+        let contextIndex = null;
+
+        const INITIAL_WRITING = [
+            { date: '04-08-2025', title: 'Interview with John Maus: "I Thought My Legacy Would Speak For Itself"', publishedBy: 'Stereogum', url: 'https://www.stereogum.com/2317924/john-maus-i-thought-my-legacy-would-speak-for-itself/interviews/tracking-down/' },
+            { date: '16-06-2025', title: "McDonald's", publishedBy: 'Hobart', url: 'https://www.hobartpulp.com/web_features/mcdonald-s' },
+            { date: '11-06-2025', title: "Bohemian Rhapsody: On David Polonoff's WannaBeat", publishedBy: 'Metropolitan Review', url: 'https://metropolitanreview.com/bohemian-rhapsody/' },
+            { date: '03-06-2025', title: 'Sparks', publishedBy: 'Expat Press', url: 'https://expatpress.com/sparks-nick-dove/' },
+            { date: '25-05-2025', title: 'Sherbert Sunset', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/sunset-sherbet' },
+            { date: '17-01-2025', title: 'The Great Bugman', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/the-great-bugman' },
+            { date: '13-01-2025', title: 'The Snow Globe', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/the-snow-globe' },
+            { date: '08-01-2025', title: 'Notes on the Apprentice (2024)', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/notes-on-the-apprentice-2024' },
+            { date: '02-01-2025', title: '25 Predictions for 2025', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/25-predictions-for-2025' },
+            { date: '30-12-2024', title: 'Marlboro Reds', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/marlboro-reds' },
+            { date: '19-12-2024', title: 'Notes on Barney/Britt/McCarthy', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/notes-on-barneybrittmccarthy' },
+            { date: '08-11-2024', title: 'Election Day Diary', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/above-town-election-day-2024' },
+            { date: '22-10-2024', title: 'RIP Kleanthes', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/above-town-rip-kleanthes' },
+            { date: '18-10-2024', title: 'The White Party', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/above-town-2-the-white-party' },
+            { date: '09-09-2024', title: 'Time Again', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/above-town-1-time-again' },
+            { date: '04-02-2024', title: 'Sanna/Saddam', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/sannasaddam' },
+            { date: '27-01-2024', title: 'Furious George', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/furious-george' },
+            { date: '07-11-2023', title: 'After Lisbon', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/daydream-3-11423' },
+            { date: '09-06-2023', title: 'Smokefall at the Worldheart', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/smokefall-at-the-worldheart' },
+            { date: '30-01-2023', title: 'The Ballad of Jean Henri', publishedBy: 'Substack', url: 'https://nickdove.substack.com/p/the-ballad-of-jean-henri' }
+        ];
+
+        function parseDDMMYYYY(s) {
+            const [dd, mm, yyyy] = s.split('-');
+            return new Date(yyyy, mm - 1, dd);
+        }
+
+        function sortWriting() {
+            writingData.sort((a, b) => parseDDMMYYYY(b.date) - parseDDMMYYYY(a.date));
+        }
+
+        function renderWritingTable() {
+            sortWriting();
+            const tbody = document.getElementById('writing-tbody');
+            tbody.innerHTML = '';
+            writingData.forEach((item, i) => {
+                if (editingIndex === i) {
+                    tbody.appendChild(createEditRow(item, i));
+                } else {
+                    tbody.appendChild(createDisplayRow(item, i));
+                }
+            });
+        }
+
+        function createDisplayRow(item, index) {
+            const tr = document.createElement('tr');
+            tr.innerHTML =
+                '<td class="col-date">' + escapeHtml(item.date) + '</td>' +
+                '<td>' + escapeHtml(item.title) + '</td>' +
+                '<td class="col-pub">' + escapeHtml(item.publishedBy) + '</td>' +
+                '<td><a href="' + escapeHtml(item.url) + '" target="_blank" onclick="event.stopPropagation()">' + truncateUrl(item.url) + '</a></td>';
+            tr.dataset.index = index;
+            return tr;
+        }
+
+        function createEditRow(item, index) {
+            const tr = document.createElement('tr');
+            tr.className = 'edit-row';
+            tr.innerHTML =
+                '<td class="col-date"><input type="date" id="edit-date" value="' + ddmmyyyyToIso(item.date) + '"></td>' +
+                '<td><input type="text" id="edit-title" value="' + escapeAttr(item.title) + '" placeholder="Title"></td>' +
+                '<td class="col-pub"><input type="text" id="edit-pub" value="' + escapeAttr(item.publishedBy) + '" placeholder="Publication"></td>' +
+                '<td><input type="text" id="edit-url" value="' + escapeAttr(item.url) + '" placeholder="URL"></td>';
+            tr.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+            return tr;
+        }
+
+        function startEditing(index) {
+            commitEdit();
+            editingIndex = index;
+            renderWritingTable();
+            const firstInput = document.querySelector('.edit-row input');
+            if (firstInput) firstInput.focus();
+        }
+
+        function commitEdit() {
+            if (editingIndex === null) return;
+            const d = document.getElementById('edit-date');
+            const t = document.getElementById('edit-title');
+            const p = document.getElementById('edit-pub');
+            const u = document.getElementById('edit-url');
+            if (d && t && p && u) {
+                writingData[editingIndex] = {
+                    date: isoToDdmmyyyy(d.value.trim()),
+                    title: t.value.trim(),
+                    publishedBy: p.value.trim(),
+                    url: u.value.trim()
+                };
+            }
+            editingIndex = null;
+        }
+
+        function addWritingEntry() {
+            commitEdit();
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const yyyy = today.getFullYear();
+            writingData.unshift({ date: dd + '-' + mm + '-' + yyyy, title: '', publishedBy: '', url: '' });
+            editingIndex = 0;
+            renderWritingTable();
+            const firstInput = document.querySelector('.edit-row input');
+            if (firstInput) firstInput.focus();
+        }
+
+        // --- Context menu ---
+
+        function showContextMenu(e, index) {
+            contextIndex = index;
+            const menu = document.getElementById('context-menu');
+            menu.style.left = e.clientX + 'px';
+            menu.style.top = e.clientY + 'px';
+            menu.classList.remove('hidden');
+        }
+
+        function hideContextMenu() {
+            document.getElementById('context-menu').classList.add('hidden');
+            contextIndex = null;
+        }
+
+        document.getElementById('ctx-delete').addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (contextIndex === null) return;
+            const idx = contextIndex;
+            hideContextMenu();
+            showDeleteConfirm(idx);
+        });
+
+        // --- Delete confirmation modal ---
+
+        function showDeleteConfirm(index) {
+            const item = writingData[index];
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML =
+                '<div class="modal-box">' +
+                    '<h3 class="text-lg font-bodoni font-bold text-gray-900 mb-2">Are you sure?</h3>' +
+                    '<p class="text-gray-600 mb-6 text-sm">This will delete <strong>' + escapeHtml(item.title || 'this entry') + '</strong>.</p>' +
+                    '<div class="flex justify-end space-x-3">' +
+                        '<button class="modal-cancel px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">Cancel</button>' +
+                        '<button class="modal-confirm px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors">Delete</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+            overlay.querySelector('.modal-cancel').addEventListener('click', function() { overlay.remove(); });
+            overlay.querySelector('.modal-confirm').addEventListener('click', function() {
+                if (editingIndex === index) editingIndex = null;
+                else if (editingIndex !== null && editingIndex > index) editingIndex--;
+                writingData.splice(index, 1);
+                renderWritingTable();
+                overlay.remove();
+            });
+            overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+        }
+
+        // --- Table click delegation ---
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.context-menu')) hideContextMenu();
+
+            const row = e.target.closest('.writing-table tbody tr');
+            if (row && !row.classList.contains('edit-row') && row.dataset.index !== undefined) {
+                const idx = parseInt(row.dataset.index);
+                commitEdit();
+                startEditing(idx);
+                return;
+            }
+            if (editingIndex !== null && !e.target.closest('.edit-row') && !e.target.closest('#add-writing-btn')) {
+                commitEdit();
+                renderWritingTable();
+            }
+        });
+
+        document.addEventListener('contextmenu', function(e) {
+            const row = e.target.closest('.writing-table tbody tr');
+            if (row && row.dataset.index !== undefined) {
+                e.preventDefault();
+                showContextMenu(e, parseInt(row.dataset.index));
+            } else if (!e.target.closest('.writing-table')) {
+                hideContextMenu();
+            }
+        });
+
+        // --- Keyboard: Enter/Escape in edit row, Tab between fields ---
+
+        document.addEventListener('keydown', function(e) {
+            if (editingIndex === null) return;
+            if (e.key === 'Enter') {
+                commitEdit();
+                renderWritingTable();
+            } else if (e.key === 'Escape') {
+                if (writingData[editingIndex] && !writingData[editingIndex].title) {
+                    writingData.splice(editingIndex, 1);
+                }
+                editingIndex = null;
+                renderWritingTable();
+            }
+        });
+
+        function ddmmyyyyToIso(s) {
+            if (!s) return '';
+            const [dd, mm, yyyy] = s.split('-');
+            return yyyy + '-' + mm + '-' + dd;
+        }
+        function isoToDdmmyyyy(s) {
+            if (!s) return '';
+            const [yyyy, mm, dd] = s.split('-');
+            return dd + '-' + mm + '-' + yyyy;
+        }
+        function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+        function escapeAttr(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;'); }
+        function truncateUrl(u) {
+            try { const url = new URL(u); return url.hostname + (url.pathname.length > 20 ? url.pathname.substring(0, 20) + '...' : url.pathname); }
+            catch { return u && u.length > 40 ? u.substring(0, 40) + '...' : (u || ''); }
+        }
+
+        function getToken() {
+            return localStorage.getItem(TOKEN_KEY);
+        }
+
+        function showAdmin() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('admin-console').classList.remove('hidden');
+            initEditors();
+            initWritingTable();
+            initPhotoCollections();
+            navigateToSection();
+        }
+
+        function showLogin() {
+            document.getElementById('admin-console').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        function initEditors() {
+            if (quillAbout) return;
+
+            const toolbarOptions = [
+                [{ 'header': [1, 2, 3, false] }],
+                ['bold', 'italic', 'underline'],
+                ['link'],
+                [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+                ['blockquote'],
+                ['clean']
+            ];
+
+            quillAbout = new Quill('#editor-about', {
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions },
+                placeholder: 'Enter About page content...'
+            });
+
+            quillContact = new Quill('#editor-contact', {
+                theme: 'snow',
+                modules: { toolbar: toolbarOptions },
+                placeholder: 'Enter Contact page content...'
+            });
+
+            quillAbout.root.innerHTML = '<h2>About Nick Dove</h2><p>Nick Dove is a New York City-based photographer and writer, with work in both disciplines featured in <a href="https://www.vice.com/en/article/gatecrashing-the-disastrous-opening-night-of-polymarkets-situation-monitoring-bar/" target="_blank">VICE</a>, <a href="https://stereogum.com/2317924/john-maus-i-thought-my-legacy-would-speak-for-itself/interviews" target="_blank">Stereogum</a>, <a href="https://metropolitanreview.com/bohemian-rhapsody/" target="_blank">The Metropolitan Review</a>, <a href="https://officemagazine.net/pornstars-are-nicer-your-friends" target="_blank">Office Magazine</a>, <a href="https://www.hobartpulp.com/web_features/dumbshits-at-weird-fucks" target="_blank">Hobart Magazine</a>, and <a href="https://expatpress.com/sparks-nick-dove/" target="_blank">Expat Press</a>, among others.</p><p>His art focuses on capturing the raw and expressive, and laying bare the vast range of human emotions and interactions, from the serene to deranged.</p><p>His rates are available upon inquiry.</p>';
+
+            quillContact.root.innerHTML = '<h2>Get in Touch</h2><p>If you\'re interested in my work and want to reach out, you can reach me via email or social media. Hit my inbox at <strong>ncdove at protonmail dot com</strong>, or you can give me a follow and message me on <a href="https://twitter.com/manabovetown" target="_blank">X</a> (formerly Twitter) or <a href="https://instagram.com/manabovetown" target="_blank">Instagram</a>.</p>';
+        }
+
+        // --- Section navigation ---
+
+        function navigateToSection() {
+            const hash = window.location.hash.replace('#', '') || 'photo';
+            document.querySelectorAll('.admin-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('[data-section]').forEach(el => el.classList.remove('active'));
+
+            const section = document.getElementById('section-' + hash);
+            const navLink = document.querySelector('[data-section="' + hash + '"]');
+            if (section) section.classList.add('active');
+            if (navLink) navLink.classList.add('active');
+        }
+
+        function initWritingTable() {
+            if (writingData.length) return;
+            writingData = JSON.parse(JSON.stringify(INITIAL_WRITING));
+            renderWritingTable();
+            document.getElementById('add-writing-btn').addEventListener('click', addWritingEntry);
+        }
+
+        document.querySelectorAll('[data-section]').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.location.hash = this.dataset.section;
+                navigateToSection();
+            });
+        });
+
+        window.addEventListener('hashchange', navigateToSection);
+
+        // --- Auth ---
+
+        async function verifyToken() {
+            const token = getToken();
+            if (!token) return false;
+            try {
+                const res = await fetch('/api/auth/verify', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                return res.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        verifyToken().then(valid => {
+            if (valid) showAdmin();
+        });
+
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const password = document.getElementById('password-input').value;
+
+            try {
+                const res = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+
+                if (res.ok) {
+                    const { token } = await res.json();
+                    localStorage.setItem(TOKEN_KEY, token);
+                    document.getElementById('error-message').classList.add('hidden');
+                    showAdmin();
+                } else {
+                    document.getElementById('error-message').classList.remove('hidden');
+                    document.getElementById('password-input').value = '';
+                    document.getElementById('password-input').focus();
+                }
+            } catch {
+                document.getElementById('error-message').textContent = 'Server error. Try again.';
+                document.getElementById('error-message').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            localStorage.removeItem(TOKEN_KEY);
+            showLogin();
+        });
+
+        // --- Photo collections ---
+
+        let photoCollections = [];
+
+        async function initPhotoCollections() {
+            try {
+                const res = await fetch('/api/data/photoCollections', {
+                    headers: { 'Authorization': 'Bearer ' + getToken() }
+                });
+                if (res.ok) photoCollections = await res.json();
+            } catch {}
+            renderCollections();
+            document.getElementById('add-collection-btn').addEventListener('click', addCollection);
+        }
+
+        function renderCollections() {
+            const container = document.getElementById('collections-list');
+            container.innerHTML = '';
+            photoCollections.forEach((col, ci) => {
+                const card = document.createElement('div');
+                card.className = 'collection-card';
+                card.innerHTML =
+                    '<div class="flex justify-between items-start mb-3">' +
+                        '<div class="flex-1">' +
+                            '<div class="collection-meta">' +
+                                '<input type="text" value="' + escapeAttr(col.title) + '" placeholder="Collection title" data-ci="' + ci + '" data-field="title">' +
+                            '</div>' +
+                            '<div class="collection-meta">' +
+                                '<input type="text" value="' + escapeAttr(col.description) + '" placeholder="Description" data-ci="' + ci + '" data-field="description">' +
+                            '</div>' +
+                            '<div class="collection-meta">' +
+                                '<label style="font-size:0.8rem;color:#6b7280;display:flex;align-items:center;gap:0.5rem;cursor:pointer">' +
+                                    '<input type="checkbox" ' + (col.featured ? 'checked' : '') + ' data-ci="' + ci + '" data-field="featured"> Featured on homepage' +
+                                '</label>' +
+                            '</div>' +
+                        '</div>' +
+                        '<button class="delete-collection-btn text-gray-400 hover:text-red-600 transition-colors ml-3" data-ci="' + ci + '" title="Delete collection" style="font-size:1.2rem">✕</button>' +
+                    '</div>' +
+                    '<div class="photo-grid" id="photo-grid-' + ci + '"></div>';
+                container.appendChild(card);
+
+                const grid = card.querySelector('#photo-grid-' + ci);
+                (col.images || []).forEach((img, ii) => {
+                    const thumb = document.createElement('div');
+                    thumb.className = 'photo-thumb';
+                    thumb.draggable = true;
+                    thumb.dataset.ci = ci;
+                    thumb.dataset.ii = ii;
+                    thumb.innerHTML =
+                        '<img src="' + escapeAttr(img.url) + '" alt="">' +
+                        '<button class="remove-photo" data-ci="' + ci + '" data-ii="' + ii + '">✕</button>';
+                    grid.appendChild(thumb);
+                });
+
+                const uploadZone = document.createElement('div');
+                uploadZone.className = 'upload-zone';
+                uploadZone.innerHTML =
+                    '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4"/></svg>' +
+                    '<span>Upload</span>';
+                uploadZone.dataset.ci = ci;
+
+                const fileInput = document.createElement('input');
+                fileInput.type = 'file';
+                fileInput.accept = 'image/*';
+                fileInput.multiple = true;
+                fileInput.style.display = 'none';
+                fileInput.dataset.ci = ci;
+
+                uploadZone.addEventListener('click', () => fileInput.click());
+                uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('dragover'); });
+                uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('dragover'));
+                uploadZone.addEventListener('drop', e => {
+                    e.preventDefault();
+                    uploadZone.classList.remove('dragover');
+                    handleFiles(ci, e.dataTransfer.files, uploadZone);
+                });
+                fileInput.addEventListener('change', () => {
+                    handleFiles(ci, fileInput.files, uploadZone);
+                    fileInput.value = '';
+                });
+
+                grid.appendChild(uploadZone);
+                grid.appendChild(fileInput);
+            });
+
+            container.addEventListener('change', function(e) {
+                const ci = parseInt(e.target.dataset.ci);
+                const field = e.target.dataset.field;
+                if (field === 'featured') {
+                    photoCollections[ci].featured = e.target.checked;
+                } else if (field) {
+                    photoCollections[ci][field] = e.target.value;
+                }
+            });
+            container.addEventListener('input', function(e) {
+                const ci = parseInt(e.target.dataset.ci);
+                const field = e.target.dataset.field;
+                if (field && field !== 'featured') {
+                    photoCollections[ci][field] = e.target.value;
+                }
+            });
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('remove-photo')) {
+                    const ci = parseInt(e.target.dataset.ci);
+                    const ii = parseInt(e.target.dataset.ii);
+                    removePhoto(ci, ii);
+                }
+                if (e.target.classList.contains('delete-collection-btn') || e.target.closest('.delete-collection-btn')) {
+                    const btn = e.target.closest('.delete-collection-btn') || e.target;
+                    const ci = parseInt(btn.dataset.ci);
+                    deleteCollection(ci);
+                }
+            });
+
+            // --- Drag-and-drop reorder ---
+            let dragCi = null, dragIi = null;
+
+            container.addEventListener('dragstart', function(e) {
+                const thumb = e.target.closest('.photo-thumb');
+                if (!thumb) return;
+                dragCi = parseInt(thumb.dataset.ci);
+                dragIi = parseInt(thumb.dataset.ii);
+                thumb.classList.add('dragging');
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', '');
+            });
+
+            container.addEventListener('dragend', function(e) {
+                const thumb = e.target.closest('.photo-thumb');
+                if (thumb) thumb.classList.remove('dragging');
+                container.querySelectorAll('.drag-over-left, .drag-over-right').forEach(el => {
+                    el.classList.remove('drag-over-left', 'drag-over-right');
+                });
+                dragCi = null;
+                dragIi = null;
+            });
+
+            container.addEventListener('dragover', function(e) {
+                const thumb = e.target.closest('.photo-thumb');
+                if (!thumb || dragCi === null) return;
+                if (parseInt(thumb.dataset.ci) !== dragCi) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                container.querySelectorAll('.drag-over-left, .drag-over-right').forEach(el => {
+                    el.classList.remove('drag-over-left', 'drag-over-right');
+                });
+                const rect = thumb.getBoundingClientRect();
+                const midX = rect.left + rect.width / 2;
+                if (e.clientX < midX) {
+                    thumb.classList.add('drag-over-left');
+                } else {
+                    thumb.classList.add('drag-over-right');
+                }
+            });
+
+            container.addEventListener('dragleave', function(e) {
+                const thumb = e.target.closest('.photo-thumb');
+                if (thumb) {
+                    thumb.classList.remove('drag-over-left', 'drag-over-right');
+                }
+            });
+
+            container.addEventListener('drop', function(e) {
+                const thumb = e.target.closest('.photo-thumb');
+                if (!thumb || dragCi === null) return;
+                const targetCi = parseInt(thumb.dataset.ci);
+                const targetIi = parseInt(thumb.dataset.ii);
+                if (targetCi !== dragCi || targetIi === dragIi) return;
+                e.preventDefault();
+                const rect = thumb.getBoundingClientRect();
+                const midX = rect.left + rect.width / 2;
+                const insertBefore = e.clientX < midX;
+
+                const images = photoCollections[dragCi].images;
+                const [moved] = images.splice(dragIi, 1);
+                let newIndex = targetIi;
+                if (dragIi < targetIi) newIndex--;
+                if (!insertBefore) newIndex++;
+                images.splice(newIndex, 0, moved);
+
+                dragCi = null;
+                dragIi = null;
+                saveCollections();
+                renderCollections();
+            });
+        }
+
+        async function handleFiles(ci, files, zone) {
+            const col = photoCollections[ci];
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('photo', file);
+                formData.append('collection', col.id);
+
+                zone.innerHTML =
+                    '<svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="animate-spin" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-width="2" stroke-dasharray="31.4 31.4" stroke-dashoffset="10"/></svg>' +
+                    '<span>Uploading...</span>';
+
+                try {
+                    const res = await fetch('/api/photos/upload', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + getToken() },
+                        body: formData
+                    });
+                    if (res.ok) {
+                        const result = await res.json();
+                        col.images.push({ url: result.url, publicId: result.publicId });
+                    } else {
+                        const err = await res.json();
+                        alert('Upload failed: ' + (err.error || 'Unknown error'));
+                    }
+                } catch (err) {
+                    alert('Upload failed: ' + err.message);
+                }
+            }
+            await saveCollections();
+            renderCollections();
+        }
+
+        async function removePhoto(ci, ii) {
+            const img = photoCollections[ci].images[ii];
+            if (img.publicId) {
+                try {
+                    await fetch('/api/photos?publicId=' + encodeURIComponent(img.publicId), {
+                        method: 'DELETE',
+                        headers: { 'Authorization': 'Bearer ' + getToken() }
+                    });
+                } catch {}
+            }
+            photoCollections[ci].images.splice(ii, 1);
+            await saveCollections();
+            renderCollections();
+        }
+
+        function addCollection() {
+            const id = 'collection-' + Date.now();
+            photoCollections.push({
+                id: id,
+                title: '',
+                description: '',
+                featured: false,
+                images: []
+            });
+            renderCollections();
+            const inputs = document.querySelectorAll('.collection-card:last-child input[data-field="title"]');
+            if (inputs.length) inputs[inputs.length - 1].focus();
+        }
+
+        function deleteCollection(ci) {
+            const col = photoCollections[ci];
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.innerHTML =
+                '<div class="modal-box">' +
+                    '<h3 class="text-lg font-bodoni font-bold text-gray-900 mb-2">Delete Collection?</h3>' +
+                    '<p class="text-gray-600 mb-6 text-sm">This will delete <strong>' + escapeHtml(col.title || 'this collection') + '</strong> and all its photos.</p>' +
+                    '<div class="flex justify-end space-x-3">' +
+                        '<button class="modal-cancel px-4 py-2 border border-gray-300 rounded-md text-sm hover:bg-gray-50 transition-colors">Cancel</button>' +
+                        '<button class="modal-confirm px-4 py-2 bg-red-600 text-white rounded-md text-sm hover:bg-red-700 transition-colors">Delete</button>' +
+                    '</div>' +
+                '</div>';
+            document.body.appendChild(overlay);
+            overlay.querySelector('.modal-cancel').addEventListener('click', () => overlay.remove());
+            overlay.querySelector('.modal-confirm').addEventListener('click', async () => {
+                for (const img of col.images) {
+                    if (img.publicId) {
+                        try {
+                            await fetch('/api/photos?publicId=' + encodeURIComponent(img.publicId), {
+                                method: 'DELETE',
+                                headers: { 'Authorization': 'Bearer ' + getToken() }
+                            });
+                        } catch {}
+                    }
+                }
+                photoCollections.splice(ci, 1);
+                await saveCollections();
+                renderCollections();
+                overlay.remove();
+            });
+            overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+        }
+
+        async function saveCollections() {
+            photoCollections.forEach(col => {
+                col.id = col.id || col.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            });
+            try {
+                await fetch('/api/data/photoCollections', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + getToken()
+                    },
+                    body: JSON.stringify(photoCollections)
+                });
+            } catch (err) {
+                alert('Failed to save collections: ' + err.message);
+            }
+        }
+
+        // --- Change password ---
+
+        document.getElementById('change-password-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const msgEl = document.getElementById('password-message');
+            const oldPw = document.getElementById('old-password').value;
+            const newPw = document.getElementById('new-password').value;
+            const confirmPw = document.getElementById('confirm-password').value;
+
+            msgEl.classList.add('hidden');
+
+            if (!oldPw || !newPw || !confirmPw) {
+                msgEl.textContent = 'All fields are required.';
+                msgEl.className = 'text-sm text-red-600';
+                return;
+            }
+            if (newPw !== confirmPw) {
+                msgEl.textContent = 'New passwords do not match.';
+                msgEl.className = 'text-sm text-red-600';
+                return;
+            }
+            if (newPw.length < 6) {
+                msgEl.textContent = 'New password must be at least 6 characters.';
+                msgEl.className = 'text-sm text-red-600';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/auth/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + getToken()
+                    },
+                    body: JSON.stringify({ oldPassword: oldPw, newPassword: newPw })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    localStorage.setItem(TOKEN_KEY, data.token);
+                    msgEl.textContent = 'Password updated successfully.';
+                    msgEl.className = 'text-sm text-green-600';
+                    document.getElementById('old-password').value = '';
+                    document.getElementById('new-password').value = '';
+                    document.getElementById('confirm-password').value = '';
+                } else {
+                    msgEl.textContent = data.error || 'Failed to update password.';
+                    msgEl.className = 'text-sm text-red-600';
+                }
+            } catch {
+                msgEl.textContent = 'Server error. Try again.';
+                msgEl.className = 'text-sm text-red-600';
+            }
+        });
+    })();
+    </script>
+</body>
+</html>

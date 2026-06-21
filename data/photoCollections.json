@@ -1,0 +1,70 @@
+[
+  {
+    "id": "griftfest",
+    "title": "Griftfest",
+    "description": "A collection capturing the energy and atmosphere of Griftfest.",
+    "featured": true,
+    "images": [
+      {
+        "url": "/images/griftfest/1.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/2.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/4.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/6.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/5.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/3.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/griftfest/7.jpg",
+        "publicId": null
+      }
+    ]
+  },
+  {
+    "id": "new-ritual-press",
+    "title": "New Ritual Press",
+    "description": "Documentary photography exploring new forms of ritual and ceremony.",
+    "featured": true,
+    "images": [
+      {
+        "url": "/images/new-ritual-press/1.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/new-ritual-press/2.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/new-ritual-press/3.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/new-ritual-press/4.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/new-ritual-press/5.jpg",
+        "publicId": null
+      },
+      {
+        "url": "/images/new-ritual-press/6.jpg",
+        "publicId": null
+      }
+    ]
+  }
+]

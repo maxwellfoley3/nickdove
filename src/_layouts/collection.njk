@@ -8,23 +8,23 @@ layout: base.njk
         <nav class="text-sm text-gray-500 mb-4">
             <a href="/" class="hover:text-gray-700" style="color: #7a7a7a">← Back to Photography</a>
         </nav>
-        
+
         <p class="text-xl text-gray-600">{{ description }}</p>
     </div>
 
     <!-- Carousel Section -->
     <div class="bg-white rounded-lg shadow-sm p-8 mb-12">
-        
+
         <div class="relative">
             <!-- Carousel Container -->
             <div class="overflow-hidden rounded-lg">
                 <div id="carousel-container" class="flex transition-transform duration-500 ease-in-out">
-                    {% for i in range(1, imageCount + 1) %}
+                    {% for img in images %}
                     <div class="w-full flex-shrink-0">
                         <div class="aspect-video bg-gray-200 rounded-lg overflow-hidden">
-                            <img 
-                                src="/images/{{ folder }}/{{ i }}.jpg" 
-                                alt="{{ title }} - Image {{ i }}"
+                            <img
+                                src="{{ img.url }}"
+                                alt="{{ title }} - Image {{ loop.index }}"
                                 class="m-0 w-full h-full object-cover"
                                 loading="lazy"
                             />
@@ -33,10 +33,10 @@ layout: base.njk
                     {% endfor %}
                 </div>
             </div>
-            
+
             <!-- Navigation Buttons -->
-            <button 
-                id="prev-btn" 
+            <button
+                id="prev-btn"
                 class="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
                 aria-label="Previous image"
             >
@@ -44,9 +44,9 @@ layout: base.njk
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
                 </svg>
             </button>
-            
-            <button 
-                id="next-btn" 
+
+            <button
+                id="next-btn"
                 class="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 hover:bg-opacity-75 text-white p-2 rounded-full transition-all duration-200"
                 aria-label="Next image"
             >
@@ -54,28 +54,28 @@ layout: base.njk
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
                 </svg>
             </button>
-            
+
             <!-- Dots Indicator -->
             <div class="flex justify-center mt-4 space-x-2">
-                {% for i in range(1, imageCount + 1) %}
-                <button 
+                {% for img in images %}
+                <button
                     class="carousel-dot w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 {% if loop.first %}bg-gray-600{% endif %}"
                     data-slide="{{ loop.index0 }}"
-                    aria-label="Go to slide {{ i }}"
+                    aria-label="Go to slide {{ loop.index }}"
                 ></button>
                 {% endfor %}
             </div>
         </div>
     </div>
     <!-- Photo Grid -->
-        
+
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {% for i in range(1, imageCount + 1) %}
-            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden group cursor-pointer" 
+            {% for img in images %}
+            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden group cursor-pointer"
                  onclick="goToSlideAndScroll({{ loop.index0 }})">
-                <img 
-                    src="/images/{{ folder }}/{{ i }}.jpg" 
-                    alt="{{ title }} - Image {{ i }}"
+                <img
+                    src="{{ img.url }}"
+                    alt="{{ title }} - Image {{ loop.index }}"
                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     loading="lazy"
                 />
@@ -92,54 +92,50 @@ document.addEventListener('DOMContentLoaded', function() {
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const dots = document.querySelectorAll('.carousel-dot');
-    
+
     let currentSlide = 0;
-    const totalSlides = {{ imageCount }};
-    
+    const totalSlides = {{ images.length }};
+
     function updateCarousel() {
         const translateX = -currentSlide * 100;
         container.style.transform = `translateX(${translateX}%)`;
-        
+
         // Update dots
         dots.forEach((dot, index) => {
             dot.classList.toggle('bg-gray-600', index === currentSlide);
             dot.classList.toggle('bg-gray-300', index !== currentSlide);
         });
     }
-    
+
     function nextSlide() {
         currentSlide = (currentSlide + 1) % totalSlides;
         updateCarousel();
     }
-    
+
     function prevSlide() {
         currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
         updateCarousel();
     }
-    
+
     function goToSlide(slideIndex) {
         currentSlide = slideIndex;
         updateCarousel();
     }
-    
-    // Global function to go to slide and scroll to carousel
+
     window.goToSlideAndScroll = function(slideIndex) {
         goToSlide(slideIndex);
-        
-        // Scroll to carousel with smooth behavior
         const carouselSection = document.querySelector('.bg-white.rounded-lg.shadow-sm.p-8.mb-12');
         if (carouselSection) {
-            carouselSection.scrollIntoView({ 
+            carouselSection.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             });
         }
     };
-    
-    // Event listeners
+
     nextBtn.addEventListener('click', nextSlide);
     prevBtn.addEventListener('click', prevSlide);
-    
+
     dots.forEach((dot, index) => {
         dot.addEventListener('click', () => goToSlide(index));
     });
