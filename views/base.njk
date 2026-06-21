@@ -28,10 +28,10 @@
                 </div>
                 <div class="flex justify-between items-center">
                     <div class="flex space-x-8 opacity-0 translate-y-4 delay-[300ms] duration-[600ms] taos:opacity-[100] taos:-translate-y-4">
-                        <a href="/" class="nav-link {% if page.url == '/' %}active{% endif %} font-bodoni">Photo</a>
-                        <a href="/writing/" class="nav-link {% if page.url == '/writing/' %}active{% endif %} font-bodoni">Writing</a>
-                        <a href="/about/" class="nav-link {% if page.url == '/about/' %}active{% endif %} font-bodoni">About</a>
-                        <a href="/contact/" class="nav-link {% if page.url == '/contact/' %}active{% endif %} font-bodoni">Contact</a>
+                        <a href="/" class="nav-link {% if currentPath == '/' %}active{% endif %} font-bodoni">Photo</a>
+                        <a href="/writing/" class="nav-link {% if currentPath == '/writing/' %}active{% endif %} font-bodoni">Writing</a>
+                        <a href="/about/" class="nav-link {% if currentPath == '/about/' %}active{% endif %} font-bodoni">About</a>
+                        <a href="/contact/" class="nav-link {% if currentPath == '/contact/' %}active{% endif %} font-bodoni">Contact</a>
                     </div>
                     <div class="flex space-x-4">
                         <a href="https://twitter.com/manabovetown" target="_blank" rel="noopener noreferrer" class="text-gray-600 hover:text-gray-900 transition-colors duration-200">
@@ -52,7 +52,7 @@
 
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {{ content | safe }}
+        {% block content %}{% endblock %}
     </main>
 
     <!-- Footer -->
@@ -65,4 +65,4 @@
     </footer>
     <script src="https://unpkg.com/taos@1.0.5/dist/taos.js"></script>
 </body>
-</html> 
+</html>

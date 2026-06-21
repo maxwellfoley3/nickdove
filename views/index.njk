@@ -1,12 +1,10 @@
----
-layout: base.njk
-title: Photo
----
+{% extends "base.njk" %}
 
-<div class="prose prose-lg max-w-none">    
+{% block content %}
+<div class="prose prose-lg max-w-none">
     <div class="space-y-8">
         <!-- Photo Collections Grid -->
-        <div class="rounded-lg shadow-sm p-8" style="background-color: rgb(254, 254, 254)">            
+        <div class="rounded-lg shadow-sm p-8" style="background-color: rgb(254, 254, 254)">
             <div class="grid md:grid-cols-2 lg:grid-cols-2 gap-6">
                 {% for collection in photoCollections %}
                 <a href="/photo/{{ collection.id }}/" class="group no-underline">
@@ -26,3 +24,4 @@ title: Photo
         </div>
     </div>
 </div>
+{% endblock %}

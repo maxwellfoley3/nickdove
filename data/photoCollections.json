@@ -66,5 +66,20 @@
         "publicId": null
       }
     ]
+  },
+  {
+    "id": "pleasure-seeking",
+    "title": "Pleasure Seeking",
+    "description": "An intimate exploration of joy, desire, and the pursuit of happiness.",
+    "featured": true,
+    "images": [
+      { "url": "/images/pleasure-seeking/1.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/2.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/3.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/4.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/5.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/6.jpg", "publicId": null },
+      { "url": "/images/pleasure-seeking/7.jpg", "publicId": null }
+    ]
   }
 ]

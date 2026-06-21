@@ -1,7 +1,6 @@
----
-layout: base.njk
----
+{% extends "base.njk" %}
 
+{% block content %}
 <div class="prose prose-lg max-w-none">
     <!-- Collection Header -->
     <div class="mb-8">
@@ -59,7 +58,7 @@ layout: base.njk
             <div class="flex justify-center mt-4 space-x-2">
                 {% for img in images %}
                 <button
-                    class="carousel-dot w-3 h-3 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 {% if loop.first %}bg-gray-600{% endif %}"
+                    class="carousel-dot w-2 h-2 rounded-full bg-gray-300 hover:bg-gray-400 transition-colors duration-200 {% if loop.first %}bg-gray-600{% endif %}"
                     data-slide="{{ loop.index0 }}"
                     aria-label="Go to slide {{ loop.index }}"
                 ></button>
@@ -71,12 +70,12 @@ layout: base.njk
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {% for img in images %}
-            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden group cursor-pointer"
+            <div class="aspect-square bg-gray-200 rounded-lg overflow-hidden group cursor-pointer" style="margin-top: 0"
                  onclick="goToSlideAndScroll({{ loop.index0 }})">
                 <img
                     src="{{ img.url }}"
                     alt="{{ title }} - Image {{ loop.index }}"
-                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" style="margin-top: 0"
                     loading="lazy"
                 />
             </div>
@@ -94,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const dots = document.querySelectorAll('.carousel-dot');
 
     let currentSlide = 0;
-    const totalSlides = {{ images.length }};
+    const totalSlides = {{ images | length }};
 
     function updateCarousel() {
         const translateX = -currentSlide * 100;
@@ -141,3 +140,4 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+{% endblock %}

@@ -1,16 +1,13 @@
 {
   "name": "mcrumps",
   "version": "1.0.0",
-  "description": "Nick Dove's author website built with Eleventy and Tailwind CSS",
-  "main": "index.js",
+  "description": "Nick Dove's portfolio website",
+  "main": "server.js",
   "scripts": {
-    "build": "npm run css && eleventy",
-    "start": "npm run build && node server.js",
-    "dev": "npm run css && eleventy --serve --watch",
+    "start": "npm run css && node server.js",
     "serve": "node server.js",
-    "css": "npx tailwindcss -i src/css/style.css -o _site/css/style.css",
-    "css:watch": "npx tailwindcss -i src/css/style.css -o _site/css/style.css --watch",
-    "rebuild": "npm run css && npm run build"
+    "css": "npx tailwindcss -i src/css/style.css -o src/css/dist/style.css",
+    "css:watch": "npx tailwindcss -i src/css/style.css -o src/css/dist/style.css --watch"
   },
   "keywords": [
     "eleventy",
@@ -33,6 +30,7 @@
     "jsonwebtoken": "^9.0.3",
     "luxon": "^3.7.2",
     "multer": "^2.2.0",
+    "nunjucks": "^3.2.4",
     "tailwindcss": "^3.4.17",
     "taos": "^2.0.1"
   }

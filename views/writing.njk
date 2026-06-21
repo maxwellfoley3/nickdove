@@ -1,14 +1,11 @@
----
-layout: base.njk
-title: Writing
----
+{% extends "base.njk" %}
 
+{% block content %}
 <div class="prose prose-lg max-w-none">
-    
 
     <div class="space-y-8">
         <!-- Featured Work -->
-        <div class="bg-white rounded-lg shadow-sm p-8">            
+        <div class="bg-white rounded-lg shadow-sm p-8">
             <div class="space-y-6">
                 {% for work in writing %}
                 <div class="pl-6 py-4 hover:bg-gray-50 transition-colors duration-200 border-b">
@@ -21,7 +18,7 @@ title: Writing
                         <div class="flex flex-col lg:flex-row lg:items-center lg:gap-4">
                             <div class="flex items-center gap-2 text-gray-600">
                                 <span class="font-medium text-gray-600">{{ work.publishedBy }}</span>
-                                <span class="text-gray-400">•</span>
+                                <span class="text-gray-400">&bull;</span>
                                 <span class="text-gray-500">{{ work.date | formatDate("LLLL d, yyyy") }}</span>
                             </div>
                         </div>
@@ -32,4 +29,5 @@ title: Writing
         </div>
 
     </div>
-</div> 
+</div>
+{% endblock %}

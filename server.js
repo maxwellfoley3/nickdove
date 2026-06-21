@@ -1,13 +1,15 @@
 const express = require('express');
+const nunjucks = require('nunjucks');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
+const { DateTime } = require('luxon');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
 const TOKEN_EXPIRY = '7d';
@@ -20,7 +22,46 @@ cloudinary.config({
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 20 * 1024 * 1024 } });
 
-const AUTH_FILE = path.join(__dirname, 'data', 'auth.json');
+// --- Nunjucks ---
+
+const env = nunjucks.configure('views', {
+  autoescape: true,
+  express: app,
+  noCache: process.env.NODE_ENV !== 'production'
+});
+
+env.addFilter('formatDate', function(dateInput, format) {
+  format = format || 'MMMM yyyy';
+  if (!dateInput) return '';
+  let dt;
+  if (dateInput instanceof Date) {
+    dt = DateTime.fromJSDate(dateInput);
+  } else if (typeof dateInput === 'string') {
+    dt = DateTime.fromISO(dateInput, { zone: 'utc' });
+    if (!dt.isValid) {
+      const parts = dateInput.split('-');
+      if (parts.length === 3) {
+        const [dd, mm, yyyy] = parts;
+        dt = DateTime.fromFormat(dd + '-' + mm + '-' + yyyy, 'dd-MM-yyyy', { zone: 'utc' });
+      }
+    }
+  }
+  return dt && dt.isValid ? dt.toFormat(format) : String(dateInput);
+});
+
+app.set('view engine', 'njk');
+
+// --- Data helpers ---
+
+const DATA_DIR = path.join(__dirname, 'data');
+
+function readJSON(name) {
+  return JSON.parse(fs.readFileSync(path.join(DATA_DIR, name + '.json'), 'utf-8'));
+}
+
+// --- Auth ---
+
+const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
 
 function getPasswordHash() {
   return JSON.parse(fs.readFileSync(AUTH_FILE, 'utf-8')).passwordHash;
@@ -86,10 +127,8 @@ app.post('/api/auth/change-password', requireAuth, (req, res) => {
 
 // --- Data routes ---
 
-const DATA_DIR = path.join(__dirname, 'data');
-
 app.get('/api/data/:collection', requireAuth, (req, res) => {
-  const filePath = path.join(DATA_DIR, `${req.params.collection}.json`);
+  const filePath = path.join(DATA_DIR, req.params.collection + '.json');
   if (!fs.existsSync(filePath)) {
     return res.status(404).json({ error: 'Collection not found' });
   }
@@ -98,7 +137,7 @@ app.get('/api/data/:collection', requireAuth, (req, res) => {
 });
 
 app.put('/api/data/:collection', requireAuth, (req, res) => {
-  const filePath = path.join(DATA_DIR, `${req.params.collection}.json`);
+  const filePath = path.join(DATA_DIR, req.params.collection + '.json');
   fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
   res.json({ success: true });
 });
@@ -116,7 +155,7 @@ app.post('/api/photos/upload', requireAuth, upload.single('photo'), async (req, 
   try {
     const result = await new Promise((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: `nickdove/${collection}`, resource_type: 'image' },
+        { folder: 'nickdove/' + collection, resource_type: 'image' },
         (err, result) => err ? reject(err) : resolve(result)
       );
       stream.end(req.file.buffer);
@@ -145,18 +184,57 @@ app.delete('/api/photos', requireAuth, async (req, res) => {
   }
 });
 
-// --- Serve static site ---
+// --- Static assets ---
 
-app.use(express.static(path.join(__dirname, '_site')));
+app.use('/images', express.static(path.join(__dirname, 'src', 'images')));
+app.use('/fonts', express.static(path.join(__dirname, 'src', 'fonts')));
+app.use('/css', express.static(path.join(__dirname, 'src', 'css', 'dist')));
 
-app.get('/{*splat}', (req, res) => {
-  const filePath = path.join(__dirname, '_site', req.path, 'index.html');
-  if (fs.existsSync(filePath)) {
-    return res.sendFile(filePath);
+// --- Admin ---
+
+app.get('/admin/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src', 'admin', 'index.html'));
+});
+
+// --- Public pages ---
+
+app.get('/', (req, res) => {
+  const collections = readJSON('photoCollections').filter(c => c.featured);
+  res.render('index', { photoCollections: collections, currentPath: '/' });
+});
+
+app.get('/writing/', (req, res) => {
+  const writing = readJSON('writing');
+  writing.sort((a, b) => {
+    const [dd1, mm1, yyyy1] = a.date.split('-');
+    const [dd2, mm2, yyyy2] = b.date.split('-');
+    return new Date(yyyy2, mm2 - 1, dd2) - new Date(yyyy1, mm1 - 1, dd1);
+  });
+  res.render('writing', { writing, currentPath: '/writing/' });
+});
+
+app.get('/about/', (req, res) => {
+  res.render('about', { currentPath: '/about/' });
+});
+
+app.get('/contact/', (req, res) => {
+  res.render('contact', { currentPath: '/contact/' });
+});
+
+app.get('/photo/:id/', (req, res) => {
+  const collections = readJSON('photoCollections');
+  const col = collections.find(c => c.id === req.params.id);
+  if (!col) {
+    return res.status(404).render('index', { photoCollections: collections.filter(c => c.featured), currentPath: '/' });
   }
-  res.status(404).sendFile(path.join(__dirname, '_site', 'index.html'));
+  res.render('collection', {
+    title: col.title,
+    description: col.description,
+    images: col.images,
+    currentPath: '/photo/' + col.id + '/'
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+  console.log('Server running at http://localhost:' + PORT);
 });
