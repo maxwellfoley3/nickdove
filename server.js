@@ -3,10 +3,10 @@ const nunjucks = require('nunjucks');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const path = require('path');
-const fs = require('fs');
 const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { DateTime } = require('luxon');
+const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -51,25 +51,7 @@ env.addFilter('formatDate', function(dateInput, format) {
 
 app.set('view engine', 'njk');
 
-// --- Data helpers ---
-
-const DATA_DIR = path.join(__dirname, 'data');
-
-function readJSON(name) {
-  return JSON.parse(fs.readFileSync(path.join(DATA_DIR, name + '.json'), 'utf-8'));
-}
-
 // --- Auth ---
-
-const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
-
-function getPasswordHash() {
-  return JSON.parse(fs.readFileSync(AUTH_FILE, 'utf-8')).passwordHash;
-}
-
-function setPasswordHash(hash) {
-  fs.writeFileSync(AUTH_FILE, JSON.stringify({ passwordHash: hash }, null, 2));
-}
 
 app.use(express.json());
 
@@ -93,12 +75,13 @@ function requireAuth(req, res, next) {
 
 // --- Auth routes ---
 
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   const { password } = req.body;
   if (!password) {
     return res.status(400).json({ error: 'Password required' });
   }
-  if (hashPassword(password) !== getPasswordHash()) {
+  const storedHash = await db.getSetting('password_hash');
+  if (hashPassword(password) !== storedHash) {
     return res.status(401).json({ error: 'Incorrect password' });
   }
   const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
@@ -109,36 +92,49 @@ app.get('/api/auth/verify', requireAuth, (req, res) => {
   res.json({ valid: true });
 });
 
-app.post('/api/auth/change-password', requireAuth, (req, res) => {
+app.post('/api/auth/change-password', requireAuth, async (req, res) => {
   const { oldPassword, newPassword } = req.body;
   if (!oldPassword || !newPassword) {
     return res.status(400).json({ error: 'Both old and new passwords are required' });
   }
-  if (hashPassword(oldPassword) !== getPasswordHash()) {
+  const storedHash = await db.getSetting('password_hash');
+  if (hashPassword(oldPassword) !== storedHash) {
     return res.status(401).json({ error: 'Current password is incorrect' });
   }
   if (newPassword.length < 6) {
     return res.status(400).json({ error: 'New password must be at least 6 characters' });
   }
-  setPasswordHash(hashPassword(newPassword));
+  await db.setSetting('password_hash', hashPassword(newPassword));
   const token = jwt.sign({ role: 'admin' }, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
   res.json({ success: true, token });
 });
 
-// --- Data routes ---
+// --- Writing routes ---
 
-app.get('/api/data/:collection', requireAuth, (req, res) => {
-  const filePath = path.join(DATA_DIR, req.params.collection + '.json');
-  if (!fs.existsSync(filePath)) {
-    return res.status(404).json({ error: 'Collection not found' });
-  }
-  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  res.json(data);
+app.get('/api/writing', requireAuth, async (req, res) => {
+  const writing = await db.getWriting();
+  res.json(writing);
 });
 
-app.put('/api/data/:collection', requireAuth, (req, res) => {
-  const filePath = path.join(DATA_DIR, req.params.collection + '.json');
-  fs.writeFileSync(filePath, JSON.stringify(req.body, null, 2));
+app.put('/api/writing', requireAuth, async (req, res) => {
+  await db.saveWriting(req.body);
+  res.json({ success: true });
+});
+
+// --- Collection routes ---
+
+app.get('/api/collections', requireAuth, async (req, res) => {
+  const collections = await db.getCollections();
+  res.json(collections);
+});
+
+app.put('/api/collections', requireAuth, async (req, res) => {
+  await db.saveCollections(req.body);
+  res.json({ success: true });
+});
+
+app.delete('/api/collections/:id', requireAuth, async (req, res) => {
+  await db.deleteCollection(req.params.id);
   res.json({ success: true });
 });
 
@@ -160,6 +156,7 @@ app.post('/api/photos/upload', requireAuth, upload.single('photo'), async (req, 
       );
       stream.end(req.file.buffer);
     });
+    await db.addPhoto(collection, result.secure_url, result.public_id);
     res.json({
       url: result.secure_url,
       publicId: result.public_id,
@@ -178,6 +175,7 @@ app.delete('/api/photos', requireAuth, async (req, res) => {
   }
   try {
     await cloudinary.uploader.destroy(publicId);
+    await db.removePhoto(publicId);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Delete failed: ' + err.message });
@@ -198,13 +196,13 @@ app.get('/admin/', (req, res) => {
 
 // --- Public pages ---
 
-app.get('/', (req, res) => {
-  const collections = readJSON('photoCollections').filter(c => c.featured);
-  res.render('index', { photoCollections: collections, currentPath: '/' });
+app.get('/', async (req, res) => {
+  const collections = await db.getCollections();
+  res.render('index', { photoCollections: collections.filter(c => c.featured), currentPath: '/' });
 });
 
-app.get('/writing/', (req, res) => {
-  const writing = readJSON('writing');
+app.get('/writing/', async (req, res) => {
+  const writing = await db.getWriting();
   writing.sort((a, b) => {
     const [dd1, mm1, yyyy1] = a.date.split('-');
     const [dd2, mm2, yyyy2] = b.date.split('-');
@@ -221,10 +219,10 @@ app.get('/contact/', (req, res) => {
   res.render('contact', { currentPath: '/contact/' });
 });
 
-app.get('/photo/:id/', (req, res) => {
-  const collections = readJSON('photoCollections');
-  const col = collections.find(c => c.id === req.params.id);
+app.get('/photo/:id/', async (req, res) => {
+  const col = await db.getCollection(req.params.id);
   if (!col) {
+    const collections = await db.getCollections();
     return res.status(404).render('index', { photoCollections: collections.filter(c => c.featured), currentPath: '/' });
   }
   res.render('collection', {
@@ -235,6 +233,13 @@ app.get('/photo/:id/', (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
-  console.log('Server running at http://localhost:' + PORT);
+// --- Start ---
+
+db.initDB().then(() => {
+  app.listen(PORT, () => {
+    console.log('Server running at http://localhost:' + PORT);
+  });
+}).catch(err => {
+  console.error('Failed to initialize database:', err);
+  process.exit(1);
 });
