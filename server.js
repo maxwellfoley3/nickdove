@@ -121,6 +121,28 @@ app.put('/api/writing', requireAuth, async (req, res) => {
   res.json({ success: true });
 });
 
+// --- About/Contact routes ---
+
+app.get('/api/about', requireAuth, async (req, res) => {
+  const html = await db.getSetting('about_html');
+  res.json({ html: html || '' });
+});
+
+app.put('/api/about', requireAuth, async (req, res) => {
+  await db.setSetting('about_html', req.body.html);
+  res.json({ success: true });
+});
+
+app.get('/api/contact', requireAuth, async (req, res) => {
+  const html = await db.getSetting('contact_html');
+  res.json({ html: html || '' });
+});
+
+app.put('/api/contact', requireAuth, async (req, res) => {
+  await db.setSetting('contact_html', req.body.html);
+  res.json({ success: true });
+});
+
 // --- Collection routes ---
 
 app.get('/api/collections', requireAuth, async (req, res) => {
@@ -211,12 +233,14 @@ app.get('/writing/', async (req, res) => {
   res.render('writing', { writing, currentPath: '/writing/' });
 });
 
-app.get('/about/', (req, res) => {
-  res.render('about', { currentPath: '/about/' });
+app.get('/about/', async (req, res) => {
+  const aboutHtml = await db.getSetting('about_html');
+  res.render('about', { currentPath: '/about/', aboutHtml });
 });
 
-app.get('/contact/', (req, res) => {
-  res.render('contact', { currentPath: '/contact/' });
+app.get('/contact/', async (req, res) => {
+  const contactHtml = await db.getSetting('contact_html');
+  res.render('contact', { currentPath: '/contact/', contactHtml });
 });
 
 app.get('/photo/:id/', async (req, res) => {
