@@ -26,6 +26,7 @@
         .writing-table .col-pub { width: 160px; }
 
         /* Context menu */
+        .writing-table tbody tr:not(.edit-row) { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
         .context-menu { position: fixed; z-index: 1000; background: white; border: 1px solid #e5e7eb; border-radius: 0.375rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 0.25rem 0; min-width: 140px; }
         .context-menu button { display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; font-size: 0.875rem; color: #dc2626; background: none; border: none; cursor: pointer; }
         .context-menu button:hover { background: #fef2f2; }
@@ -321,13 +322,58 @@
 
         // --- Context menu ---
 
-        function showContextMenu(e, index) {
+        function showContextMenu(e, index, x, y) {
             contextIndex = index;
             const menu = document.getElementById('context-menu');
-            menu.style.left = e.clientX + 'px';
-            menu.style.top = e.clientY + 'px';
             menu.classList.remove('hidden');
+            const px = x !== undefined ? x : e.clientX;
+            const py = y !== undefined ? y : e.clientY;
+            menu.style.left = Math.min(px, window.innerWidth - menu.offsetWidth - 8) + 'px';
+            menu.style.top = Math.min(py, window.innerHeight - menu.offsetHeight - 8) + 'px';
         }
+
+        // --- Long-press (touch, pen or mouse) ---
+        let longPressTimer = null;
+        let longPressStart = null;
+        let suppressNextClick = false;
+
+        function cancelLongPress() {
+            clearTimeout(longPressTimer);
+            longPressTimer = null;
+            longPressStart = null;
+        }
+
+        document.addEventListener('pointerdown', function(e) {
+            suppressNextClick = false;
+            if (e.button !== 0) return;
+            const row = e.target.closest('.writing-table tbody tr');
+            if (!row || row.classList.contains('edit-row') || row.dataset.index === undefined) return;
+            const idx = parseInt(row.dataset.index);
+            longPressStart = { x: e.clientX, y: e.clientY };
+            longPressTimer = setTimeout(function() {
+                longPressTimer = null;
+                suppressNextClick = true;
+                if (navigator.vibrate) navigator.vibrate(10);
+                showContextMenu(null, idx, longPressStart.x, longPressStart.y);
+            }, 500);
+        });
+
+        document.addEventListener('pointermove', function(e) {
+            if (!longPressStart) return;
+            if (Math.hypot(e.clientX - longPressStart.x, e.clientY - longPressStart.y) > 10) cancelLongPress();
+        });
+
+        document.addEventListener('pointerup', function() { clearTimeout(longPressTimer); longPressTimer = null; });
+        document.addEventListener('pointercancel', cancelLongPress);
+
+        // Swallow the click that follows a long-press so it doesn't close the menu or start editing
+        document.addEventListener('click', function(e) {
+            if (suppressNextClick) {
+                suppressNextClick = false;
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        }, true);
 
         function hideContextMenu() {
             document.getElementById('context-menu').classList.add('hidden');
